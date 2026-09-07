@@ -1,0 +1,39 @@
+<?php
+
+use App\Http\Controllers\Api\AppSettingController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\MerchantAddressController;
+use App\Http\Controllers\Api\MerchantController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\StaffController;
+use Illuminate\Support\Facades\Route;
+
+Route::post('login', [AuthController::class, 'login']);
+Route::post('logout', [AuthController::class, 'logout']);
+
+// App Settings & Information Endpoints
+Route::get('app-settings', [AppSettingController::class, 'index']);
+Route::post('app-settings', [AppSettingController::class, 'update']);
+Route::put('app-settings', [AppSettingController::class, 'update']);
+
+// Merchant Authentication & Custom Endpoints
+Route::post('merchants/login', [MerchantController::class, 'login']);
+Route::put('merchants/{id}/status', [MerchantController::class, 'updateStatus']);
+Route::put('merchants/{id}/fcm-token', [MerchantController::class, 'updateFcmToken']);
+
+// Merchant Addresses Endpoints
+Route::get('merchants/{merchantId}/addresses', [MerchantAddressController::class, 'index']);
+Route::post('merchants/{merchantId}/addresses', [MerchantAddressController::class, 'store']);
+Route::put('merchants/{merchantId}/addresses/{addressId}/default', [MerchantAddressController::class, 'setDefault']);
+Route::delete('merchants/{merchantId}/addresses/{addressId}', [MerchantAddressController::class, 'destroy']);
+
+// Orders System Endpoints
+Route::post('orders', [OrderController::class, 'store']);
+Route::get('orders/{id}', [OrderController::class, 'show']);
+Route::put('orders/{id}/status', [OrderController::class, 'updateStatus']);
+Route::get('merchants/{merchantId}/orders', [OrderController::class, 'merchantOrders']);
+Route::get('admin/orders', [OrderController::class, 'adminOrders']);
+
+Route::apiResource('staff', StaffController::class);
+Route::apiResource('merchants', MerchantController::class);
+
