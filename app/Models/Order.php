@@ -32,6 +32,20 @@ class Order extends Model
         'status_arabic',
     ];
 
+    protected $casts = [
+        'merchant_id' => 'integer',
+        'merchant_address_id' => 'integer',
+        'merchant_latitude' => 'float',
+        'merchant_longitude' => 'float',
+        'customer_latitude' => 'float',
+        'customer_longitude' => 'float',
+        'total_amount' => 'float',
+        'delivery_fee' => 'float',
+        'net_payout' => 'float',
+        'driver_id' => 'integer',
+        'created_at' => 'datetime',
+    ];
+
     public function merchant()
     {
         return $this->belongsTo(Merchant::class);
