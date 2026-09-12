@@ -97,6 +97,53 @@ class OrderController extends Controller
     }
 
     /**
+     * Create direct order from Admin (non-merchant or custom merchant).
+     */
+    public function storeAdminOrder(Request $request)
+    {
+        $validated = $request->validate([
+            'merchant_id' => 'nullable|exists:merchants,id',
+            'sender_name' => 'nullable|string',
+            'sender_phone' => 'nullable|string',
+            'merchant_address' => 'required|string',
+            'customer_address' => 'required|string',
+            'customer_phone' => 'required|string',
+            'order_description' => 'nullable|string',
+            'total_amount' => 'required|numeric|min:0',
+            'delivery_fee' => 'required|numeric|min:0',
+            'driver_id' => 'nullable|exists:drivers,id',
+        ]);
+
+        $total = (float)$validated['total_amount'];
+        $fee = (float)$validated['delivery_fee'];
+        $net = max(0, $total - $fee);
+
+        $orderNumber = 'ADM-' . date('Ymd') . '-' . rand(1000, 9999);
+
+        $order = Order::create([
+            'order_number' => $orderNumber,
+            'merchant_id' => $validated['merchant_id'] ?? null,
+            'sender_name' => $validated['sender_name'] ?? 'طلب مباشر (من الإدارة)',
+            'sender_phone' => $validated['sender_phone'] ?? '',
+            'merchant_address' => $validated['merchant_address'],
+            'customer_address' => $validated['customer_address'],
+            'customer_phone' => $validated['customer_phone'],
+            'order_description' => $validated['order_description'] ?? '',
+            'total_amount' => $total,
+            'delivery_fee' => $fee,
+            'net_payout' => $net,
+            'driver_id' => $validated['driver_id'] ?? null,
+            'status' => !empty($validated['driver_id']) ? 'driver_assigned' : 'pending',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم إنشاء طلب التوصيل المباشر بنجاح',
+            'data' => $order->load(['merchant', 'driver']),
+        ], 201);
+    }
+
+    /**
      * Get all system orders for Admin app.
      */
     public function adminOrders(Request $request)
@@ -113,6 +160,8 @@ class OrderController extends Controller
                 $q->where('order_number', 'like', "%{$search}%")
                   ->orWhere('customer_phone', 'like', "%{$search}%")
                   ->orWhere('customer_address', 'like', "%{$search}%")
+                  ->orWhere('sender_name', 'like', "%{$search}%")
+                  ->orWhere('sender_phone', 'like', "%{$search}%")
                   ->orWhereHas('merchant', function ($mq) use ($search) {
                       $mq->where('store_name', 'like', "%{$search}%");
                   })

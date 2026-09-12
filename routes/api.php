@@ -34,6 +34,7 @@ Route::delete('merchants/{merchantId}/addresses/{addressId}', [MerchantAddressCo
 
 // Orders System Endpoints
 Route::post('orders', [OrderController::class, 'store']);
+Route::post('admin/orders', [OrderController::class, 'storeAdminOrder']);
 Route::get('orders/{id}', [OrderController::class, 'show']);
 Route::put('orders/{id}/status', [OrderController::class, 'updateStatus']);
 Route::get('merchants/{merchantId}/orders', [OrderController::class, 'merchantOrders']);

@@ -12,6 +12,8 @@ class Order extends Model
     protected $fillable = [
         'order_number',
         'merchant_id',
+        'sender_name',
+        'sender_phone',
         'merchant_address_id',
         'merchant_address',
         'merchant_latitude',
