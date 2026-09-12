@@ -56,6 +56,11 @@ class Order extends Model
         return $this->belongsTo(MerchantAddress::class, 'merchant_address_id');
     }
 
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class);
+    }
+
     public function getStatusArabicAttribute(): string
     {
         return match ($this->status) {

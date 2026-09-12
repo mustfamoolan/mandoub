@@ -81,7 +81,7 @@ class OrderController extends Controller
      */
     public function merchantOrders(Request $request, $merchantId)
     {
-        $query = Order::where('merchant_id', $merchantId)
+        $query = Order::with('driver')->where('merchant_id', $merchantId)
             ->latest();
 
         if ($request->filled('status') && $request->status !== 'all') {
@@ -101,7 +101,7 @@ class OrderController extends Controller
      */
     public function adminOrders(Request $request)
     {
-        $query = Order::with('merchant')->latest();
+        $query = Order::with(['merchant', 'driver'])->latest();
 
         if ($request->filled('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
@@ -115,6 +115,9 @@ class OrderController extends Controller
                   ->orWhere('customer_address', 'like', "%{$search}%")
                   ->orWhereHas('merchant', function ($mq) use ($search) {
                       $mq->where('store_name', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('driver', function ($dq) use ($search) {
+                      $dq->where('name', 'like', "%{$search}%");
                   });
             });
         }
@@ -132,7 +135,7 @@ class OrderController extends Controller
      */
     public function show($id)
     {
-        $order = Order::with('merchant')->find($id);
+        $order = Order::with(['merchant', 'driver'])->find($id);
 
         if (!$order) {
             return response()->json([
@@ -154,9 +157,10 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'status' => 'required|in:pending,driver_assigned,in_delivery,delivered,returned,cancelled',
+            'driver_id' => 'nullable|exists:drivers,id',
         ]);
 
-        $order = Order::with('merchant')->find($id);
+        $order = Order::with(['merchant', 'driver'])->find($id);
 
         if (!$order) {
             return response()->json([
@@ -168,7 +172,12 @@ class OrderController extends Controller
         $oldStatus = $order->status;
         $newStatus = $validated['status'];
 
-        $order->update(['status' => $newStatus]);
+        $updateData = ['status' => $newStatus];
+        if (array_key_exists('driver_id', $validated)) {
+            $updateData['driver_id'] = $validated['driver_id'];
+        }
+
+        $order->update($updateData);
 
         // Send FCM notification to merchant if token is available
         try {
@@ -219,7 +228,7 @@ class OrderController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'تم تحديث حالة الطلب بنجاح',
-            'data' => $order->fresh('merchant'),
+            'data' => $order->fresh(['merchant', 'driver']),
         ]);
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AppSettingController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DriverController;
 use App\Http\Controllers\Api\MerchantAddressController;
 use App\Http\Controllers\Api\MerchantController;
 use App\Http\Controllers\Api\OrderController;
@@ -22,6 +23,9 @@ Route::post('upload-image', [MerchantController::class, 'uploadImage']);
 Route::put('merchants/{id}/status', [MerchantController::class, 'updateStatus']);
 Route::put('merchants/{id}/fcm-token', [MerchantController::class, 'updateFcmToken']);
 
+// Driver Authentication & Custom Endpoints
+Route::post('drivers/login', [DriverController::class, 'login']);
+
 // Merchant Addresses Endpoints
 Route::get('merchants/{merchantId}/addresses', [MerchantAddressController::class, 'index']);
 Route::post('merchants/{merchantId}/addresses', [MerchantAddressController::class, 'store']);
@@ -37,4 +41,5 @@ Route::get('admin/orders', [OrderController::class, 'adminOrders']);
 
 Route::apiResource('staff', StaffController::class);
 Route::apiResource('merchants', MerchantController::class);
+Route::apiResource('drivers', DriverController::class);
 
