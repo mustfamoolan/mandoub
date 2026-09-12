@@ -15,6 +15,7 @@ class Merchant extends Model
         'username',
         'password',
         'phone',
+        'store_image',
         'status',
         'fcm_token',
     ];

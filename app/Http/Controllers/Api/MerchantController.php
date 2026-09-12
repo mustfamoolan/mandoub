@@ -61,6 +61,7 @@ class MerchantController extends Controller
             'username' => 'required|string|max:255|unique:merchants,username',
             'password' => 'required|string|min:4',
             'phone' => 'nullable|string|max:50',
+            'store_image' => 'nullable|string',
             'status' => 'required|in:active,closed,pending,banned',
         ]);
 
@@ -70,6 +71,7 @@ class MerchantController extends Controller
             'username' => $validated['username'],
             'password' => Hash::make($validated['password']),
             'phone' => $validated['phone'] ?? null,
+            'store_image' => $validated['store_image'] ?? null,
             'status' => $validated['status'],
         ]);
 
@@ -120,15 +122,19 @@ class MerchantController extends Controller
             'username' => 'required|string|max:255|unique:merchants,username,' . $id,
             'password' => 'nullable|string|min:4',
             'phone' => 'nullable|string|max:50',
-            'status' => 'required|in:active,closed,pending,banned',
+            'store_image' => 'nullable|string',
+            'status' => 'nullable|in:active,closed,pending,banned',
         ]);
+
+        $newStatus = $validated['status'] ?? $merchant->status;
 
         $data = [
             'store_name' => $validated['store_name'],
             'owner_name' => $validated['owner_name'],
             'username' => $validated['username'],
             'phone' => $validated['phone'] ?? null,
-            'status' => $validated['status'],
+            'store_image' => array_key_exists('store_image', $validated) ? $validated['store_image'] : $merchant->store_image,
+            'status' => $newStatus,
         ];
 
         if (!empty($validated['password'])) {
@@ -145,7 +151,7 @@ class MerchantController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'تم تحديث بيانات التاجر بنجاح',
-            'data' => $merchant,
+            'data' => $merchant->fresh(),
         ]);
     }
 
