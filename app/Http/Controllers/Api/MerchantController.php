@@ -322,5 +322,40 @@ class MerchantController extends Controller
             ]
         );
     }
+
+    /**
+     * Upload store image.
+     */
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = 'store_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            $destinationPath = public_path('uploads/stores');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            $file->move($destinationPath, $filename);
+
+            $url = url('uploads/stores/' . $filename);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم رفع الصورة بنجاح',
+                'url' => $url,
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'لم يتم إرسال أي صورة',
+        ], 400);
+    }
 }
 

@@ -18,6 +18,7 @@ Route::put('app-settings', [AppSettingController::class, 'update']);
 
 // Merchant Authentication & Custom Endpoints
 Route::post('merchants/login', [MerchantController::class, 'login']);
+Route::post('upload-image', [MerchantController::class, 'uploadImage']);
 Route::put('merchants/{id}/status', [MerchantController::class, 'updateStatus']);
 Route::put('merchants/{id}/fcm-token', [MerchantController::class, 'updateFcmToken']);
 
