@@ -154,6 +154,14 @@ class OrderController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->filled('driver_id')) {
+            $query->where('driver_id', $request->driver_id);
+        }
+
+        if ($request->filled('unassigned') && $request->unassigned == '1') {
+            $query->whereNull('driver_id');
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
